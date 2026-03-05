@@ -1,0 +1,245 @@
+/* -------------------------
+GLOBAL / BACKGROUND
+------------------------- */
+
+body{
+margin:0;
+font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;
+background:#f2f2f7;
+color:#1c1c1e;
+}
+
+/* -------------------------
+MAIN CONTAINER
+------------------------- */
+
+.container{
+max-width:460px;
+margin:auto;
+padding:20px;
+box-sizing:border-box;
+}
+
+/* -------------------------
+HEADINGS
+------------------------- */
+
+.title{
+font-size:30px;
+font-weight:700;
+margin-bottom:20px;
+}
+
+h1{
+font-size:28px;
+line-height:1.2;
+word-break:break-word;
+}
+
+/* -------------------------
+AGENT INFO
+------------------------- */
+
+.agent-name{
+font-size:22px;
+font-weight:600;
+margin-top:18px;
+}
+
+.time{
+color:#6e6e73;
+margin-bottom:20px;
+font-size:14px;
+}
+
+/* -------------------------
+SELECT DROPDOWN
+------------------------- */
+
+.selector{
+width:100%;
+padding:12px 14px;
+border-radius:12px;
+border:1px solid #d1d1d6;
+background:white;
+font-size:16px;
+margin-bottom:20px;
+}
+
+/* -------------------------
+CIRCULAR TIMERS
+------------------------- */
+
+.timer-row{
+display:flex;
+gap:12px;
+flex-wrap:wrap;
+justify-content:center;
+margin-bottom:10px;
+}
+
+/* -------------------------
+CARDS GRID
+------------------------- */
+
+.cards{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:14px;
+margin-top:10px;
+}
+
+/* -------------------------
+CARD STYLE (iOS)
+------------------------- */
+
+.card{
+background:white;
+border-radius:16px;
+padding:16px;
+box-shadow:0 8px 20px rgba(0,0,0,0.05);
+transition:transform 0.15s ease;
+}
+
+.card:hover{
+transform:translateY(-2px);
+}
+
+/* -------------------------
+CARD TEXT
+------------------------- */
+
+.card-title{
+font-size:13px;
+color:#6e6e73;
+margin-bottom:6px;
+}
+
+.card-value{
+font-size:18px;
+font-weight:600;
+}
+
+/* -------------------------
+STATUS COLORS
+------------------------- */
+
+.status-working{ color:#34c759; }
+.status-break{ color:#ff9f0a; }
+.status-lunch{ color:#ff3b30; }
+.status-notstarted{ color:#0a84ff; }
+.status-shiftfinished{ color:#8e8e93; }
+
+/* -------------------------
+SHIFT SUMMARY
+------------------------- */
+
+.shift-box{
+background:white;
+border-radius:18px;
+padding:18px;
+margin-top:20px;
+box-shadow:0 8px 20px rgba(0,0,0,0.05);
+}
+
+.shift-title{
+font-size:13px;
+color:#6e6e73;
+margin-bottom:8px;
+}
+
+.shift-value{
+font-size:20px;
+font-weight:600;
+}
+
+/* -------------------------
+TEAM DASHBOARD
+------------------------- */
+
+.team-grid{
+display:grid;
+grid-template-columns:1fr;
+gap:16px;
+margin-top:20px;
+}
+
+.team-section{
+background:white;
+padding:16px;
+border-radius:16px;
+box-shadow:0 8px 20px rgba(0,0,0,0.05);
+}
+
+.team-section h3{
+font-size:16px;
+margin-bottom:10px;
+}
+
+.team-card{
+display:flex;
+justify-content:space-between;
+padding:8px 0;
+font-size:14px;
+border-bottom:1px solid #f2f2f7;
+}
+
+.team-card:last-child{
+border-bottom:none;
+}
+
+.empty{
+color:#8e8e93;
+font-size:13px;
+}
+
+/* -------------------------
+NAV BUTTON
+------------------------- */
+
+.nav-btn{
+display:inline-block;
+margin-top:10px;
+padding:10px 14px;
+background:#007aff;
+color:white;
+border-radius:10px;
+font-size:14px;
+text-decoration:none;
+}
+
+/* -------------------------
+TABLET / DESKTOP
+------------------------- */
+
+@media (min-width:768px){
+
+.container{
+max-width:900px;
+}
+
+.cards{
+grid-template-columns:repeat(3,1fr);
+}
+
+.team-grid{
+grid-template-columns:repeat(2,1fr);
+}
+
+}
+
+/* -------------------------
+LARGE SCREENS
+------------------------- */
+
+@media (min-width:1200px){
+
+.cards{
+grid-template-columns:repeat(4,1fr);
+}
+
+.team-grid{
+grid-template-columns:repeat(3,1fr);
+}
+
+}
