@@ -105,6 +105,16 @@ value={{label:selectedAgent.name,value:agents.indexOf(selectedAgent)}}
 onChange={(option)=>setSelectedAgent(agents[option.value])}
 />
 
+{/* OPEN AGENT DASHBOARD BUTTON */}
+
+<Link
+to={`/agent/${selectedAgent.id}`}
+className="nav-btn"
+style={{marginTop:"10px",display:"inline-block"}}
+>
+Open Agent Dashboard
+</Link>
+
 <p className="time">
 Current ET Time: {formatTime(now)}
 </p>
