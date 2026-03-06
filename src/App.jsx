@@ -12,11 +12,14 @@ return(
 
 <Routes>
 
+
 <Route path="/" element={<Dashboard/>} />
 
 <Route path="/team" element={<TeamDashboard/>} />
 
 <Route path="/agent/:agentId" element={<AgentDashboard/>}/>
+
+<Route path="*" element={<Dashboard />} />
 
 </Routes>
 
