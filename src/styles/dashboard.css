@@ -243,3 +243,67 @@ grid-template-columns:repeat(3,1fr);
 }
 
 }
+
+.team-tile{
+
+background:white;
+border-radius:16px;
+padding:14px;
+text-align:center;
+box-shadow:0 8px 20px rgba(0,0,0,0.05);
+transition:all 0.3s;
+
+}
+
+.tile-name{
+
+font-size:14px;
+font-weight:600;
+margin-bottom:6px;
+
+}
+
+.tile-status{
+
+font-size:13px;
+
+}
+
+.tile-time{
+
+font-size:12px;
+margin-top:4px;
+
+}
+
+/* STATUS COLORS */
+
+.status-working{
+
+border-left:6px solid #34c759;
+
+}
+
+.status-break{
+
+border-left:6px solid #ff9f0a;
+
+}
+
+.status-lunch{
+
+border-left:6px solid #ff3b30;
+
+}
+
+.status-login{
+
+border-left:6px solid #0a84ff;
+
+}
+
+.status-finished{
+
+border-left:6px solid #8e8e93;
+
+}
