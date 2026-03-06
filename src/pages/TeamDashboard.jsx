@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react"
+import { Link } from "react-router-dom"
+import Select from "react-select"
 
 import { agents } from "../data/agents"
 import { timeToMinutes, getESTMinutes } from "../utils/timeUtils"
@@ -8,16 +10,24 @@ import "../styles/dashboard.css"
 export default function TeamDashboard(){
 
 const [now,setNow] = useState(getESTMinutes())
+const [selectedAgent,setSelectedAgent] = useState(null)
 
 useEffect(()=>{
 
-const timer = setInterval(()=>{
+const timer=setInterval(()=>{
 setNow(getESTMinutes())
 },1000)
 
 return ()=>clearInterval(timer)
 
 },[])
+
+/* ---------- dropdown options ---------- */
+
+const options = agents.map((a,index)=>({
+value:index,
+label:a.name
+}))
 
 /* ---------- helpers ---------- */
 
@@ -82,7 +92,7 @@ return null
 
 }
 
-/* ---------- agents on break ---------- */
+/* ---------- agents currently on break ---------- */
 
 const agentsOnBreak = agents
 .map(agent=>{
@@ -127,8 +137,7 @@ if(diff <= minutes){
 
 return{
 name:agent.name,
-type:next.type,
-time:next.time
+type:next.type
 }
 
 }
@@ -190,9 +199,9 @@ return null
 
 /* ---------- coverage forecast ---------- */
 
-function calculateCoverage(offsetMinutes){
+function calculateCoverage(offset){
 
-const future = now + offsetMinutes
+const future = now + offset
 
 let working = 0
 
@@ -247,6 +256,28 @@ return(
 Current ET Time: {formatTime(now)}
 </p>
 
+<Link to="/" className="nav-btn">
+Agent Dashboard
+</Link>
+
+<Select
+options={options}
+placeholder="Select Agent"
+onChange={(option)=>setSelectedAgent(agents[option.value])}
+/>
+
+{selectedAgent && (
+
+<Link
+to={`/agent/${selectedAgent.id}`}
+className="nav-btn"
+style={{marginTop:"10px",display:"inline-block"}}
+>
+Open Agent Dashboard
+</Link>
+
+)}
+
 <div className="team-grid">
 
 {/* ACTIVE BREAKS */}
@@ -264,17 +295,11 @@ Current ET Time: {formatTime(now)}
 <div key={i} className="team-card">
 
 <div>
-
-<strong>{a.name}</strong> <br/>
+<strong>{a.name}</strong><br/>
 {a.type}
-
 </div>
 
-<div>
-
-{a.remaining} min left
-
-</div>
+<div>{a.remaining} min left</div>
 
 </div>
 
@@ -289,16 +314,12 @@ Current ET Time: {formatTime(now)}
 <h3>Breaks in 15 Minutes</h3>
 
 {break15.length === 0 ?(
-
 <p className="empty">None</p>
-
 ):(break15.map((a,i)=>(
 
 <div key={i} className="team-card">
-
 <div>{a.name}</div>
 <div>{a.type}</div>
-
 </div>
 
 )))}
@@ -312,16 +333,12 @@ Current ET Time: {formatTime(now)}
 <h3>Breaks in 30 Minutes</h3>
 
 {break30.length === 0 ?(
-
 <p className="empty">None</p>
-
 ):(break30.map((a,i)=>(
 
 <div key={i} className="team-card">
-
 <div>{a.name}</div>
 <div>{a.type}</div>
-
 </div>
 
 )))}
@@ -335,16 +352,12 @@ Current ET Time: {formatTime(now)}
 <h3>Breaks in 60 Minutes</h3>
 
 {break60.length === 0 ?(
-
 <p className="empty">None</p>
-
 ):(break60.map((a,i)=>(
 
 <div key={i} className="team-card">
-
 <div>{a.name}</div>
 <div>{a.type}</div>
-
 </div>
 
 )))}
@@ -358,16 +371,12 @@ Current ET Time: {formatTime(now)}
 <h3>Shift Ending Soon</h3>
 
 {shiftEndingSoon.length === 0 ?(
-
 <p className="empty">None</p>
-
 ):(shiftEndingSoon.map((a,i)=>(
 
 <div key={i} className="team-card">
-
 <div>{a.name}</div>
 <div>{a.time}</div>
-
 </div>
 
 )))}
@@ -381,23 +390,19 @@ Current ET Time: {formatTime(now)}
 <h3>Agents Logging In Soon</h3>
 
 {loginSoon.length === 0 ?(
-
 <p className="empty">None</p>
-
 ):(loginSoon.map((a,i)=>(
 
 <div key={i} className="team-card">
-
 <div>{a.name}</div>
 <div>{a.time}</div>
-
 </div>
 
 )))}
 
 </div>
 
-{/* COVERAGE FORECAST */}
+{/* COVERAGE */}
 
 <div className="team-section">
 
@@ -405,30 +410,22 @@ Current ET Time: {formatTime(now)}
 
 <div className="team-card">
 <div>Now</div>
-<div style={{color:coverageColor(coverageNow)}}>
-{coverageNow} agents
-</div>
+<div style={{color:coverageColor(coverageNow)}}>{coverageNow} agents</div>
 </div>
 
 <div className="team-card">
 <div>15 Minutes</div>
-<div style={{color:coverageColor(coverage15)}}>
-{coverage15} agents
-</div>
+<div style={{color:coverageColor(coverage15)}}>{coverage15} agents</div>
 </div>
 
 <div className="team-card">
 <div>30 Minutes</div>
-<div style={{color:coverageColor(coverage30)}}>
-{coverage30} agents
-</div>
+<div style={{color:coverageColor(coverage30)}}>{coverage30} agents</div>
 </div>
 
 <div className="team-card">
 <div>60 Minutes</div>
-<div style={{color:coverageColor(coverage60)}}>
-{coverage60} agents
-</div>
+<div style={{color:coverageColor(coverage60)}}>{coverage60} agents</div>
 </div>
 
 </div>

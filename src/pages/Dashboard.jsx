@@ -10,7 +10,7 @@ import "../styles/dashboard.css"
 export default function Dashboard(){
 
 const [now,setNow] = useState(getESTMinutes())
-const [selectedAgent,setSelectedAgent] = useState(agents[0])
+const [selectedAgent,setSelectedAgent] = useState(null)
 
 useEffect(()=>{
 
@@ -22,7 +22,7 @@ return ()=>clearInterval(timer)
 
 },[])
 
-/* ---------- dropdown ---------- */
+/* ---------- dropdown options ---------- */
 
 const options = agents.map((a,index)=>({
 value:index,
@@ -87,6 +87,16 @@ const coverage15 = countWorkingAgents(15)
 const coverage30 = countWorkingAgents(30)
 const coverage60 = countWorkingAgents(60)
 
+/* ---------- coverage color logic ---------- */
+
+function getCoverageColor(value){
+
+if(value >= 6) return "#22c55e"   // green
+if(value >= 3) return "#f59e0b"   // yellow
+return "#ef4444"                  // red
+
+}
+
 /* ---------- UI ---------- */
 
 return(
@@ -99,13 +109,17 @@ return(
 Team Dashboard
 </Link>
 
+{/* ---------- agent selector ---------- */}
+
 <Select
 options={options}
-value={{label:selectedAgent.name,value:agents.indexOf(selectedAgent)}}
+placeholder="Select Agent"
 onChange={(option)=>setSelectedAgent(agents[option.value])}
 />
 
-{/* OPEN AGENT DASHBOARD BUTTON */}
+{/* ---------- open agent dashboard ---------- */}
+
+{selectedAgent && (
 
 <Link
 to={`/agent/${selectedAgent.id}`}
@@ -115,30 +129,54 @@ style={{marginTop:"10px",display:"inline-block"}}
 Open Agent Dashboard
 </Link>
 
+)}
+
 <p className="time">
 Current ET Time: {formatTime(now)}
 </p>
+
+<h3 style={{marginTop:"20px"}}>Coverage Forecast</h3>
 
 <div className="cards">
 
 <div className="card">
 <p className="card-title">Now</p>
-<p className="card-value">{coverageNow} agents</p>
+<p 
+className="card-value"
+style={{color:getCoverageColor(coverageNow)}}
+>
+{coverageNow} agents
+</p>
 </div>
 
 <div className="card">
 <p className="card-title">15 Minutes</p>
-<p className="card-value">{coverage15} agents</p>
+<p 
+className="card-value"
+style={{color:getCoverageColor(coverage15)}}
+>
+{coverage15} agents
+</p>
 </div>
 
 <div className="card">
 <p className="card-title">30 Minutes</p>
-<p className="card-value">{coverage30} agents</p>
+<p 
+className="card-value"
+style={{color:getCoverageColor(coverage30)}}
+>
+{coverage30} agents
+</p>
 </div>
 
 <div className="card">
 <p className="card-title">60 Minutes</p>
-<p className="card-value">{coverage60} agents</p>
+<p 
+className="card-value"
+style={{color:getCoverageColor(coverage60)}}
+>
+{coverage60} agents
+</p>
 </div>
 
 </div>
