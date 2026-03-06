@@ -22,7 +22,7 @@ return ()=>clearInterval(timer)
 
 },[])
 
-/* ---------- dropdown options ---------- */
+/* ---------- dropdown ---------- */
 
 const options = agents.map((a,index)=>({
 value:index,
@@ -43,14 +43,11 @@ return `${h}:${m}`
 function getMinutesLeft(target){
 
 const diff = target - now
-
-if(diff <= 0) return 0
-
-return diff
+return diff <= 0 ? 0 : diff
 
 }
 
-/* ---------- current break detection ---------- */
+/* ---------- break detection ---------- */
 
 function getCurrentBreak(agent){
 
@@ -92,7 +89,7 @@ return null
 
 }
 
-/* ---------- agents currently on break ---------- */
+/* ---------- agents on break ---------- */
 
 const agentsOnBreak = agents
 .map(agent=>{
@@ -102,11 +99,9 @@ const currentBreak = getCurrentBreak(agent)
 if(!currentBreak) return null
 
 return{
-
 name:agent.name,
 type:currentBreak.type,
 remaining:getMinutesLeft(currentBreak.end)
-
 }
 
 })
@@ -175,7 +170,7 @@ return null
 })
 .filter(Boolean)
 
-/* ---------- agents logging in soon ---------- */
+/* ---------- login soon ---------- */
 
 const loginSoon = agents
 .map(agent=>{
@@ -238,9 +233,9 @@ const coverage60 = calculateCoverage(60)
 
 function coverageColor(value){
 
-if(value >= 10) return "green"
-if(value >= 6) return "orange"
-return "red"
+if(value >= 10) return "#22c55e"
+if(value >= 6) return "#f59e0b"
+return "#ef4444"
 
 }
 
