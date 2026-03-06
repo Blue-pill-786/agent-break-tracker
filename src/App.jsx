@@ -2,8 +2,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom"
 
 import Dashboard from "./pages/Dashboard"
 import TeamDashboard from "./pages/TeamDashboard"
-import AgentPage from "./pages/AgentPage"
 import AgentDashboard from "./pages/AgentDashboard"
+
 function App(){
 
 return(

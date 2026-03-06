@@ -10,9 +10,7 @@ import "../styles/dashboard.css"
 
 export default function Dashboard({ initialAgent = null }){
 
-// load first agent if none provided
 const [agent,setAgent] = useState(initialAgent || agents[0])
-
 const [now,setNow] = useState(getESTMinutes())
 
 useEffect(()=>{
@@ -58,9 +56,9 @@ function getMinutesLeft(target){
 
 if(target === null) return null
 
-let diff = target - now
+const diff = target - now
 
-if(diff < 0) diff += 1440
+if(diff <= 0) return 0
 
 return diff
 
@@ -108,14 +106,14 @@ return events.find(e=>e.time>now)
 
 function getShiftProgress(agent){
 
-const start=timeToMinutes(agent.shiftStart)
-const end=timeToMinutes(agent.shiftEnd)
+const start = timeToMinutes(agent.shiftStart)
+const end = timeToMinutes(agent.shiftEnd)
 
-const total=end-start
-const done=now-start
+const total = end - start
+const done = now - start
 
-if(done<=0) return 0
-if(done>=total) return 100
+if(done <= 0) return 0
+if(done >= total) return 100
 
 return Math.floor((done/total)*100)
 
@@ -174,16 +172,7 @@ const breakLeft = agent ? getMinutesLeft(nextEventTime) : null
 const progress = agent ? getShiftProgress(agent) : 0
 const status = agent ? getStatus(agent) : null
 
-const logoutProgress = agent
-? Math.min(
-100,
-Math.max(
-0,
-((now - timeToMinutes(agent.shiftStart)) /
-(timeToMinutes(agent.shiftEnd) - timeToMinutes(agent.shiftStart))) * 100
-)
-)
-: 0
+const logoutProgress = progress
 
 /* ---------- login countdown ---------- */
 
@@ -229,8 +218,7 @@ Team Dashboard
 
 <Select
 options={options}
-placeholder="Select Agent"
-value={agent ? {label:agent.name,value:agents.indexOf(agent)} : null}
+value={{label:agent.name,value:agents.indexOf(agent)}}
 onChange={(option)=>setAgent(agents[option.value])}
 />
 
