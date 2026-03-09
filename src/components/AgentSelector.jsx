@@ -1,13 +1,21 @@
-export default function AgentSelector({agents,setAgent}){
+export default function AgentSelector({ agents, setAgent }) {
 
-return(
+function handleChange(e){
+  const index = e.target.value
+  if(index === "") return
+  setAgent(agents[index])
+}
 
-<select onChange={(e)=>setAgent(agents[e.target.value])}>
+return (
 
-<option>Select your name</option>
+<select onChange={handleChange} defaultValue="">
+
+<option value="" disabled>
+Select your name
+</option>
 
 {agents.map((agent,index)=>(
-<option key={index} value={index}>
+<option key={agent.id} value={index}>
 {agent.name}
 </option>
 ))}

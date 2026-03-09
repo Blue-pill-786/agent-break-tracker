@@ -1,18 +1,16 @@
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import Select from "react-select"
+import CircularTimer from "../components/CircularTimer"
 
 import { agents } from "../data/agents"
 import { timeToMinutes, getESTMinutes } from "../utils/timeUtils"
-import CircularTimer from "../components/CircularTimer"
 
 import "../styles/dashboard.css"
 
 export default function Dashboard({ initialAgent = null }){
 
-// load first agent if none provided
 const [agent,setAgent] = useState(initialAgent || agents[0])
-
 const [now,setNow] = useState(getESTMinutes())
 
 useEffect(()=>{
@@ -66,12 +64,9 @@ return diff
 
 }
 
-/* ---------- shift logic ---------- */
+/* ---------- break detection ---------- */
 
-function getStatus(agent){
-
-const start = timeToMinutes(agent.shiftStart)
-const end = timeToMinutes(agent.shiftEnd)
+function getCurrentBreak(agent){
 
 const breakAM = timeToMinutes(agent.breakAM)
 const lunch = timeToMinutes(agent.lunch)
@@ -80,12 +75,65 @@ const breakPM = timeToMinutes(agent.breakPM)
 const breakDuration = 15
 const lunchDuration = 30
 
+if(now >= breakAM && now < breakAM + breakDuration){
+
+return {
+type:"Break",
+start:breakAM,
+duration:breakDuration
+}
+
+}
+
+if(now >= lunch && now < lunch + lunchDuration){
+
+return {
+type:"Lunch",
+start:lunch,
+duration:lunchDuration
+}
+
+}
+
+if(now >= breakPM && now < breakPM + breakDuration){
+
+return {
+type:"Break",
+start:breakPM,
+duration:breakDuration
+}
+
+}
+
+return null
+
+}
+
+function getBreakProgress(start,duration){
+
+const elapsed = now - start
+
+if(elapsed <= 0) return 0
+
+const percent = (elapsed / duration) * 100
+
+return percent > 100 ? 100 : percent
+
+}
+
+/* ---------- shift logic ---------- */
+
+function getStatus(agent){
+
+const start = timeToMinutes(agent.shiftStart)
+const end = timeToMinutes(agent.shiftEnd)
+
 if(now < start) return "Not Started"
 if(now >= end) return "Shift Finished"
 
-if(now >= breakAM && now < breakAM + breakDuration) return "Break AM"
-if(now >= lunch && now < lunch + lunchDuration) return "Lunch"
-if(now >= breakPM && now < breakPM + breakDuration) return "Break PM"
+const currentBreak = getCurrentBreak(agent)
+
+if(currentBreak) return currentBreak.type
 
 return "Working"
 
@@ -106,62 +154,9 @@ return events.find(e=>e.time>now)
 
 }
 
-function getShiftProgress(agent){
-
-const start=timeToMinutes(agent.shiftStart)
-const end=timeToMinutes(agent.shiftEnd)
-
-const total=end-start
-const done=now-start
-
-if(done<=0) return 0
-if(done>=total) return 100
-
-return Math.floor((done/total)*100)
-
-}
-
-function getShiftRemaining(agent){
-
-const end = timeToMinutes(agent.shiftEnd)
-const diff = end - now
-
-if(diff <= 0) return "Shift Finished"
-
-const h = Math.floor(diff/60)
-const m = diff % 60
-
-return `${h}h ${m}m`
-
-}
-
-/* ---------- next working day ---------- */
-
-function getNextWorkingDay(date){
-
-const next = new Date(date)
-next.setDate(next.getDate()+1)
-
-while(next.getDay() === 0 || next.getDay() === 6){
-next.setDate(next.getDate()+1)
-}
-
-return next
-
-}
-
-function getNextWorkingDayLabel(){
-
-const estNow = new Date().toLocaleString("en-US",{timeZone:"America/New_York"})
-const today = new Date(estNow)
-
-const nextDay = getNextWorkingDay(today)
-
-return nextDay.toLocaleDateString("en-US",{weekday:"long"})
-
-}
-
 /* ---------- computed values ---------- */
+
+const currentBreak = agent ? getCurrentBreak(agent) : null
 
 const nextEvent = agent ? getNextEvent(agent) : null
 
@@ -169,21 +164,15 @@ const logoutTime = agent ? timeToMinutes(agent.shiftEnd) : null
 const nextEventTime = nextEvent ? nextEvent.time : null
 
 const logoutLeft = agent ? getMinutesLeft(logoutTime) : null
-const breakLeft = agent ? getMinutesLeft(nextEventTime) : null
+const breakLeft = currentBreak
+? getMinutesLeft(currentBreak.start + currentBreak.duration)
+: getMinutesLeft(nextEventTime)
 
-const progress = agent ? getShiftProgress(agent) : 0
-const status = agent ? getStatus(agent) : null
-
-const logoutProgress = agent
-? Math.min(
-100,
-Math.max(
-0,
-((now - timeToMinutes(agent.shiftStart)) /
-(timeToMinutes(agent.shiftEnd) - timeToMinutes(agent.shiftStart))) * 100
-)
-)
+const breakProgress = currentBreak
+? getBreakProgress(currentBreak.start,currentBreak.duration)
 : 0
+
+const status = agent ? getStatus(agent) : null
 
 /* ---------- login countdown ---------- */
 
@@ -196,20 +185,6 @@ const shiftStart = timeToMinutes(agent.shiftStart)
 if(now < shiftStart){
 
 loginLeft = shiftStart - now
-
-}else{
-
-const estNow = new Date().toLocaleString("en-US",{timeZone:"America/New_York"})
-const current = new Date(estNow)
-
-const nextDay = getNextWorkingDay(current)
-
-const [h,m] = agent.shiftStart.split(":").map(Number)
-
-const nextShift = new Date(nextDay)
-nextShift.setHours(h,m,0,0)
-
-loginLeft = Math.floor((nextShift - current)/60000)
 
 }
 
@@ -253,109 +228,16 @@ progress={loginLeft ? 30 : 100}
 />
 
 <CircularTimer
-title="Next Break"
-time={
-status === "Shift Finished"
-? `${getNextWorkingDayLabel()} ${agent.breakAM}`
-: breakLeft
-? formatCountdown(breakLeft)
-: "On Break"
-}
-progress={breakLeft ? 30 : 100}
+title={currentBreak ? currentBreak.type : "Next Break"}
+time={breakLeft ? formatCountdown(breakLeft) : "--:--"}
+progress={currentBreak ? breakProgress : 0}
 />
 
 <CircularTimer
 title="Logout Countdown"
-time={
-status === "Shift Finished"
-? "Shift Over"
-: logoutLeft
-? formatCountdown(logoutLeft)
-: "Logging Out"
-}
-progress={logoutProgress}
+time={logoutLeft ? formatCountdown(logoutLeft) : "Shift Over"}
+progress={logoutLeft ? 100 - (logoutLeft/480)*100 : 100}
 />
-
-</div>
-
-<div className="cards">
-
-<div className="card">
-<p className="card-title">Status</p>
-<p className="card-value">{status}</p>
-</div>
-
-<div className="card">
-<p className="card-title">Next Event</p>
-<p className="card-value">
-{status === "Shift Finished" ? "Completed" : nextEvent?.label || "Pending"}
-</p>
-</div>
-
-<div className="card">
-<p className="card-title">Shift Start</p>
-<p className="card-value">{agent.shiftStart}</p>
-</div>
-
-<div className="card">
-<p className="card-title">Break AM</p>
-<p className="card-value">{agent.breakAM}</p>
-</div>
-
-<div className="card">
-<p className="card-title">Lunch</p>
-<p className="card-value">{agent.lunch}</p>
-</div>
-
-<div className="card">
-<p className="card-title">Break PM</p>
-<p className="card-value">{agent.breakPM}</p>
-</div>
-
-<div className="card">
-<p className="card-title">Shift End</p>
-<p className="card-value">{agent.shiftEnd}</p>
-</div>
-
-</div>
-
-<div className="shift-box">
-
-<p className="shift-title">Shift Remaining</p>
-
-<p className="shift-value">
-{getShiftRemaining(agent)}
-</p>
-
-</div>
-
-<div className="shift-box">
-
-<p className="shift-title">Shift Progress</p>
-
-<div style={{
-width:"100%",
-height:"12px",
-background:"#e2e8f0",
-borderRadius:"10px",
-marginTop:"10px"
-}}>
-
-<div style={{
-width:`${progress}%`,
-height:"12px",
-background:"#4f46e5",
-borderRadius:"10px",
-transition:"width 1s linear"
-}}/>
-
-</div>
-
-<p style={{marginTop:"8px",fontWeight:"bold"}}>
-{status === "Shift Finished"
-? "Shift Completed"
-: `${progress}% Complete`}
-</p>
 
 </div>
 
