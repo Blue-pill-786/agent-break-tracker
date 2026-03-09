@@ -1,7 +1,7 @@
 import { agents } from "../data/agents"
 import { timeToMinutes } from "../utils/timeUtils"
 
-export default function ShiftTimeline(){
+export default function ShiftTimeline({ currentTime }){
 
 function getPosition(time){
 return (time/(24*60))*100
@@ -10,6 +10,8 @@ return (time/(24*60))*100
 function getWidth(start,end){
 return ((end-start)/(24*60))*100
 }
+
+const nowPosition = getPosition(currentTime)
 
 return(
 
@@ -21,8 +23,21 @@ return(
 border:"1px solid #e5e7eb",
 borderRadius:"8px",
 padding:"20px",
-background:"#ffffff"
+background:"#ffffff",
+position:"relative"
 }}>
+
+{/* current time line */}
+
+<div style={{
+position:"absolute",
+left:`${nowPosition}%`,
+top:"0",
+bottom:"0",
+width:"2px",
+background:"#ef4444",
+zIndex:10
+}}/>
 
 {agents.map(agent=>{
 

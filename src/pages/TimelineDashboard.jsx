@@ -3,7 +3,9 @@ import { Link } from "react-router-dom"
 
 import ShiftTimeline from "../components/ShiftTimeline"
 import { getESTMinutes } from "../utils/timeUtils"
+
 import "./dashboard.css"
+
 export default function TimelineDashboard(){
 
 const [now,setNow] = useState(getESTMinutes())
@@ -37,32 +39,13 @@ return(
 
 <div className="container">
 
-<div style={{
-display:"flex",
-justifyContent:"space-between",
-alignItems:"center",
-flexWrap:"wrap",
-gap:"10px"
-}}>
+<div className="header">
 
 <h1 className="title">Live Shift Timeline</h1>
 
-<div style={{
-display:"flex",
-alignItems:"center",
-gap:"8px",
-fontSize:"14px",
-color:"#64748b"
-}}>
+<div className="live-indicator">
 
-<div style={{
-width:"8px",
-height:"8px",
-borderRadius:"50%",
-background:"#22c55e",
-animation:"pulse 1.5s infinite"
-}}/>
-
+<span className="live-dot"></span>
 Live
 
 </div>
@@ -77,8 +60,11 @@ Current ET Time: {formatTime(now)}
 Back to Team Dashboard
 </Link>
 
-<div style={{marginTop:"20px"}}>
-<ShiftTimeline currentTime={now}/>
+<div style={{marginTop:"25px"}}>
+
+{/* key forces re-render */}
+<ShiftTimeline key={now} currentTime={now} />
+
 </div>
 
 </div>
