@@ -4,7 +4,7 @@ import Select from "react-select"
 
 import { agents } from "../data/agents"
 import { timeToMinutes, getESTMinutes } from "../utils/timeUtils"
-import ShiftTimeline from "../components/ShiftTimeline"
+
 
 import "../styles/dashboard.css"
 
@@ -258,24 +258,24 @@ Current ET Time: {formatTime(now)}
 Agent Dashboard
 </Link>
 
+<Link to="/timeline" className="nav-btn">
+Live Shift Timeline
+</Link>
+
 <Select
 options={options}
 placeholder="Select Agent"
 onChange={(option)=>{
-
 if(!option){
 setSelectedAgent(null)
 return
 }
-
 const agent = agents.find(a=>a.id===option.value)
 setSelectedAgent(agent)
-
 }}
 />
 
 {selectedAgent && (
-
 <Link
 to={`/agent/${selectedAgent.id}`}
 className="nav-btn"
@@ -284,11 +284,10 @@ style={{marginTop:"10px",display:"inline-block"}}
 Open Agent Dashboard
 </Link>
 
+
 )}
 
-{/* TIMELINE */}
 
-<ShiftTimeline />
 
 <div className="team-grid">
 

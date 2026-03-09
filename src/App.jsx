@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom"
 import Dashboard from "./pages/Dashboard"
 import TeamDashboard from "./pages/TeamDashboard"
 import AgentDashboard from "./pages/AgentDashboard"
+import TimelineDashboard from "./pages/TimelineDashboard"
 
 function App(){
 
@@ -12,12 +13,13 @@ return(
 
 <Routes>
 
+<Route path="/" element={<Dashboard />} />
 
-<Route path="/" element={<Dashboard/>} />
+<Route path="/team" element={<TeamDashboard />} />
 
-<Route path="/team" element={<TeamDashboard/>} />
+<Route path="/timeline" element={<TimelineDashboard />} />
 
-<Route path="/agent/:agentId" element={<AgentDashboard/>}/>
+<Route path="/agent/:agentId" element={<AgentDashboard />} />
 
 <Route path="*" element={<Dashboard />} />
 
@@ -29,4 +31,4 @@ return(
 
 }
 
-export default App
+export default App;
