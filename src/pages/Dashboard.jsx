@@ -55,9 +55,7 @@ return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}`
 function getMinutesLeft(target){
 
 let diff = target - now
-
 if(diff < 0) diff += 1440
-
 return diff
 
 }
@@ -74,27 +72,15 @@ const breakDuration = 15
 const lunchDuration = 30
 
 if(now >= breakAM && now < breakAM + breakDuration){
-return {
-type:"Break",
-end: breakAM + breakDuration,
-duration: breakDuration
-}
+return { type:"Break", end: breakAM + breakDuration, duration: breakDuration }
 }
 
 if(now >= lunch && now < lunch + lunchDuration){
-return {
-type:"Lunch",
-end: lunch + lunchDuration,
-duration: lunchDuration
-}
+return { type:"Lunch", end: lunch + lunchDuration, duration: lunchDuration }
 }
 
 if(now >= breakPM && now < breakPM + breakDuration){
-return {
-type:"Break",
-end: breakPM + breakDuration,
-duration: breakDuration
-}
+return { type:"Break", end: breakPM + breakDuration, duration: breakDuration }
 }
 
 return null
@@ -106,12 +92,10 @@ return null
 function getNextEvent(agent){
 
 const events=[
-
 {label:"Break AM",time:timeToMinutes(agent.breakAM)},
 {label:"Lunch",time:timeToMinutes(agent.lunch)},
 {label:"Break PM",time:timeToMinutes(agent.breakPM)},
 {label:"Shift End",time:timeToMinutes(agent.shiftEnd)}
-
 ]
 
 return events.find(e=>e.time>now)
@@ -129,7 +113,6 @@ let breakColor = "#22c55e"
 if(currentBreak){
 
 breakRemaining = getMinutesLeft(currentBreak.end)
-
 breakProgress = (breakRemaining / currentBreak.duration) * 100
 
 if(breakRemaining <= 3){
@@ -147,10 +130,22 @@ breakColor = "#22c55e"
 /* ---------- next event timer ---------- */
 
 let nextEvent = selectedAgent ? getNextEvent(selectedAgent) : null
+let nextEventRemaining = nextEvent ? getMinutesLeft(nextEvent.time) : null
 
-let nextEventRemaining = nextEvent
-? getMinutesLeft(nextEvent.time)
-: null
+/* ---------- status ---------- */
+
+let status = "Idle"
+
+if(selectedAgent){
+
+if(currentBreak){
+status = currentBreak.type
+}
+else{
+status = "Working"
+}
+
+}
 
 /* ---------- UI ---------- */
 
@@ -158,11 +153,15 @@ return(
 
 <div className="container">
 
+<div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+
 <h1 className="title">Agent Break Tracker</h1>
 
 <Link to="/team" className="nav-btn">
 Team Dashboard
 </Link>
+
+</div>
 
 <Select
 options={options}
@@ -182,13 +181,42 @@ setSelectedAgent(agent)
 
 {selectedAgent && (
 
+<div style={{
+marginTop:"15px",
+padding:"14px",
+background:"#f8fafc",
+borderRadius:"10px"
+}}>
+
+<h2 className="agent-name">{selectedAgent.name}</h2>
+
+<div style={{
+display:"inline-block",
+padding:"6px 12px",
+borderRadius:"20px",
+fontSize:"13px",
+fontWeight:"600",
+background:
+status==="Working" ? "#dcfce7" :
+status==="Break" ? "#fee2e2" :
+"#fef3c7",
+color:
+status==="Working" ? "#15803d" :
+status==="Break" ? "#b91c1c" :
+"#92400e"
+}}>
+{status}
+</div>
+
 <Link
 to={`/agent/${selectedAgent.id}`}
 className="nav-btn"
-style={{marginTop:"10px",display:"inline-block"}}
+style={{marginLeft:"10px"}}
 >
-Open Agent Dashboard
+Open Agent Page
 </Link>
+
+</div>
 
 )}
 
@@ -196,15 +224,19 @@ Open Agent Dashboard
 Current ET Time: {formatTime(now)}
 </p>
 
-{/* ---------- NEXT EVENT TIMER ---------- */}
-
-{selectedAgent && !currentBreak && nextEvent && (
+{/* ---------- TIMER SECTION ---------- */}
 
 <div style={{
-marginTop:"20px",
+marginTop:"25px",
 display:"flex",
-justifyContent:"center"
+justifyContent:"center",
+gap:"30px",
+flexWrap:"wrap"
 }}>
+
+{/* Next Event */}
+
+{selectedAgent && !currentBreak && nextEvent && (
 
 <CircularTimer
 title={nextEvent.label}
@@ -212,19 +244,11 @@ time={formatCountdown(nextEventRemaining)}
 progress={0}
 />
 
-</div>
-
 )}
 
-{/* ---------- BREAK TIMER ---------- */}
+{/* Break Timer */}
 
 {currentBreak && (
-
-<div style={{
-marginTop:"20px",
-display:"flex",
-justifyContent:"center"
-}}>
 
 <CircularTimer
 title={currentBreak.type}
@@ -233,9 +257,9 @@ progress={breakProgress}
 color={breakColor}
 />
 
-</div>
-
 )}
+
+</div>
 
 </div>
 
