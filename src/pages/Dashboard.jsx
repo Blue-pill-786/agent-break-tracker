@@ -226,13 +226,46 @@ Current ET Time: {formatTime(now)}
 
 {/* ---------- TIMER SECTION ---------- */}
 
-<div style={{
-marginTop:"25px",
-display:"flex",
-justifyContent:"center",
-gap:"30px",
-flexWrap:"wrap"
-}}>
+<div className="timer-grid">
+
+{/* Next Break */}
+
+{selectedAgent && !currentBreak && nextEvent && (
+
+<CircularTimer
+title={nextEvent.label}
+time={formatCountdown(nextEventRemaining)}
+progress={0}
+/>
+
+)}
+
+{/* Break Timer */}
+
+{currentBreak && (
+
+<CircularTimer
+title={currentBreak.type}
+time={`${breakRemaining} min`}
+progress={breakProgress}
+color={breakColor}
+/>
+
+)}
+
+{/* Shift End */}
+
+{selectedAgent && (
+
+<CircularTimer
+title="Shift End"
+time={formatCountdown(getMinutesLeft(timeToMinutes(selectedAgent.shiftEnd)))}
+progress={0}
+/>
+
+)}
+
+</div>
 
 {/* Next Event */}
 
