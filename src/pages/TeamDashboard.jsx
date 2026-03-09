@@ -5,7 +5,6 @@ import Select from "react-select"
 import { agents } from "../data/agents"
 import { timeToMinutes, getESTMinutes } from "../utils/timeUtils"
 
-
 import "../styles/dashboard.css"
 
 export default function TeamDashboard(){
@@ -41,6 +40,15 @@ return `${h}:${m}`
 
 }
 
+function formatCountdown(minutes){
+
+const h = Math.floor(minutes/60)
+const m = minutes % 60
+
+return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}`
+
+}
+
 function getMinutesLeft(target){
 
 let diff = target - now
@@ -65,7 +73,7 @@ const lunchDuration = 30
 if(now >= breakAM && now < breakAM + breakDuration){
 
 return {
-type:"Break AM",
+type:"Break",
 end: breakAM + breakDuration
 }
 
@@ -83,7 +91,7 @@ end: lunch + lunchDuration
 if(now >= breakPM && now < breakPM + breakDuration){
 
 return {
-type:"Break PM",
+type:"Break",
 end: breakPM + breakDuration
 }
 
@@ -120,9 +128,9 @@ return agents
 
 const events=[
 
-{type:"Break AM",time:timeToMinutes(agent.breakAM)},
+{type:"Break",time:timeToMinutes(agent.breakAM)},
 {type:"Lunch",time:timeToMinutes(agent.lunch)},
-{type:"Break PM",time:timeToMinutes(agent.breakPM)}
+{type:"Break",time:timeToMinutes(agent.breakPM)}
 
 ]
 
@@ -276,6 +284,7 @@ setSelectedAgent(agent)
 />
 
 {selectedAgent && (
+
 <Link
 to={`/agent/${selectedAgent.id}`}
 className="nav-btn"
@@ -284,14 +293,134 @@ style={{marginTop:"10px",display:"inline-block"}}
 Open Agent Dashboard
 </Link>
 
-
 )}
-
-
 
 <div className="team-grid">
 
-{/* COVERAGE FORECAST */}
+{/* ACTIVE BREAKS */}
+
+<div className="team-section">
+
+<h3>Agents on Break / Lunch</h3>
+
+{agentsOnBreak.length === 0 ?(
+
+<p className="empty">None</p>
+
+):(agentsOnBreak.map((a)=>(
+
+<div key={a.name} className="team-card">
+
+<div>
+<strong>{a.name}</strong>
+</div>
+
+<div style={{fontWeight:"600"}}>
+{a.type}
+</div>
+
+<div>
+Time Remaining: {formatCountdown(a.remaining)}
+</div>
+
+</div>
+
+)))}
+
+</div>
+
+{/* UPCOMING BREAKS */}
+
+<div className="team-section">
+
+<h3>Breaks in 15 Minutes</h3>
+
+{break15.length === 0 ?(
+<p className="empty">None</p>
+):(break15.map((a)=>(
+
+<div key={a.name} className="team-card">
+<div>{a.name}</div>
+<div>{a.type}</div>
+</div>
+
+)))}
+
+</div>
+
+<div className="team-section">
+
+<h3>Breaks in 30 Minutes</h3>
+
+{break30.length === 0 ?(
+<p className="empty">None</p>
+):(break30.map((a)=>(
+
+<div key={a.name} className="team-card">
+<div>{a.name}</div>
+<div>{a.type}</div>
+</div>
+
+)))}
+
+</div>
+
+<div className="team-section">
+
+<h3>Breaks in 60 Minutes</h3>
+
+{break60.length === 0 ?(
+<p className="empty">None</p>
+):(break60.map((a)=>(
+
+<div key={a.name} className="team-card">
+<div>{a.name}</div>
+<div>{a.type}</div>
+</div>
+
+)))}
+
+</div>
+
+{/* SHIFT ENDING */}
+
+<div className="team-section">
+
+<h3>Shift Ending Soon</h3>
+
+{shiftEndingSoon.length === 0 ?(
+<p className="empty">None</p>
+):(shiftEndingSoon.map((a)=>(
+
+<div key={a.name} className="team-card">
+<div>{a.name}</div>
+<div>{a.time}</div>
+</div>
+
+)))}
+
+</div>
+
+{/* LOGIN SOON */}
+
+<div className="team-section">
+
+<h3>Agents Logging In Soon</h3>
+
+{loginSoon.length === 0 ?(
+<p className="empty">None</p>
+):(loginSoon.map((a)=>(
+
+<div key={a.name} className="team-card">
+<div>{a.name}</div>
+<div>{a.time}</div>
+</div>
+
+)))}
+
+</div>
+
+{/* COVERAGE FORECAST (BOTTOM) */}
 
 <div className="team-section">
 
@@ -299,7 +428,7 @@ Open Agent Dashboard
 
 <div style={{
 display:"grid",
-gridTemplateColumns:"repeat(4,1fr)",
+gridTemplateColumns:"repeat(auto-fit, minmax(120px,1fr))",
 gap:"12px"
 }}>
 
@@ -332,124 +461,6 @@ gap:"12px"
 </div>
 
 </div>
-
-</div>
-
-{/* ACTIVE BREAKS */}
-
-<div className="team-section">
-
-<h3>Agents on Break / Lunch</h3>
-
-{agentsOnBreak.length === 0 ?(
-
-<p className="empty">None</p>
-
-):(agentsOnBreak.map((a,i)=>(
-
-<div key={i} className="team-card">
-
-<div>
-<strong>{a.name}</strong><br/>
-{a.type}
-</div>
-
-<div>{a.remaining} min left</div>
-
-</div>
-
-)))}
-
-</div>
-
-{/* UPCOMING BREAKS */}
-
-<div className="team-section">
-
-<h3>Breaks in 15 Minutes</h3>
-
-{break15.length === 0 ?(
-<p className="empty">None</p>
-):(break15.map((a,i)=>(
-
-<div key={i} className="team-card">
-<div>{a.name}</div>
-<div>{a.type}</div>
-</div>
-
-)))}
-
-</div>
-
-<div className="team-section">
-
-<h3>Breaks in 30 Minutes</h3>
-
-{break30.length === 0 ?(
-<p className="empty">None</p>
-):(break30.map((a,i)=>(
-
-<div key={i} className="team-card">
-<div>{a.name}</div>
-<div>{a.type}</div>
-</div>
-
-)))}
-
-</div>
-
-<div className="team-section">
-
-<h3>Breaks in 60 Minutes</h3>
-
-{break60.length === 0 ?(
-<p className="empty">None</p>
-):(break60.map((a,i)=>(
-
-<div key={i} className="team-card">
-<div>{a.name}</div>
-<div>{a.type}</div>
-</div>
-
-)))}
-
-</div>
-
-{/* SHIFT ENDING */}
-
-<div className="team-section">
-
-<h3>Shift Ending Soon</h3>
-
-{shiftEndingSoon.length === 0 ?(
-<p className="empty">None</p>
-):(shiftEndingSoon.map((a,i)=>(
-
-<div key={i} className="team-card">
-<div>{a.name}</div>
-<div>{a.time}</div>
-</div>
-
-)))}
-
-</div>
-
-{/* LOGIN SOON */}
-
-<div className="team-section">
-
-<h3>Agents Logging In Soon</h3>
-
-{loginSoon.length === 0 ?(
-<p className="empty">None</p>
-):(loginSoon.map((a,i)=>(
-
-<div key={i} className="team-card">
-<div>{a.name}</div>
-<div>{a.time}</div>
-</div>
-
-)))}
 
 </div>
 
