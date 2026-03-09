@@ -76,33 +76,27 @@ const breakDuration = 15
 const lunchDuration = 30
 
 if(now >= breakAM && now < breakAM + breakDuration){
-
 return {
 type:"Break",
 start:breakAM,
 duration:breakDuration
 }
-
 }
 
 if(now >= lunch && now < lunch + lunchDuration){
-
 return {
 type:"Lunch",
 start:lunch,
 duration:lunchDuration
 }
-
 }
 
 if(now >= breakPM && now < breakPM + breakDuration){
-
 return {
 type:"Break",
 start:breakPM,
 duration:breakDuration
 }
-
 }
 
 return null
@@ -112,12 +106,22 @@ return null
 function getBreakProgress(start,duration){
 
 const elapsed = now - start
-
-if(elapsed <= 0) return 0
-
 const percent = (elapsed / duration) * 100
 
-return percent > 100 ? 100 : percent
+if(percent < 0) return 0
+if(percent > 100) return 100
+
+return percent
+
+}
+
+/* ---------- break color logic ---------- */
+
+function getBreakColor(minutesLeft){
+
+if(minutesLeft <= 3) return "#ef4444"
+if(minutesLeft <= 7) return "#f59e0b"
+return "#22c55e"
 
 }
 
@@ -157,13 +161,13 @@ return events.find(e=>e.time>now)
 /* ---------- computed values ---------- */
 
 const currentBreak = agent ? getCurrentBreak(agent) : null
-
 const nextEvent = agent ? getNextEvent(agent) : null
 
 const logoutTime = agent ? timeToMinutes(agent.shiftEnd) : null
 const nextEventTime = nextEvent ? nextEvent.time : null
 
 const logoutLeft = agent ? getMinutesLeft(logoutTime) : null
+
 const breakLeft = currentBreak
 ? getMinutesLeft(currentBreak.start + currentBreak.duration)
 : getMinutesLeft(nextEventTime)
@@ -171,6 +175,10 @@ const breakLeft = currentBreak
 const breakProgress = currentBreak
 ? getBreakProgress(currentBreak.start,currentBreak.duration)
 : 0
+
+const breakColor = currentBreak
+? getBreakColor(breakLeft)
+: "#4f46e5"
 
 const status = agent ? getStatus(agent) : null
 
@@ -183,9 +191,7 @@ if(agent){
 const shiftStart = timeToMinutes(agent.shiftStart)
 
 if(now < shiftStart){
-
 loginLeft = shiftStart - now
-
 }
 
 }
@@ -230,7 +236,8 @@ progress={loginLeft ? 30 : 100}
 <CircularTimer
 title={currentBreak ? currentBreak.type : "Next Break"}
 time={breakLeft ? formatCountdown(breakLeft) : "--:--"}
-progress={currentBreak ? breakProgress : 0}
+progress={breakProgress}
+color={breakColor}
 />
 
 <CircularTimer
@@ -239,6 +246,10 @@ time={logoutLeft ? formatCountdown(logoutLeft) : "Shift Over"}
 progress={logoutLeft ? 100 - (logoutLeft/480)*100 : 100}
 />
 
+</div>
+
+<div style={{marginTop:"20px",fontWeight:"600"}}>
+Status: {status}
 </div>
 
 </div>

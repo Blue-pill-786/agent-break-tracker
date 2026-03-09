@@ -43,6 +43,8 @@ return `${h}:${m}`
 
 function formatCountdown(minutes){
 
+if(minutes === null || minutes <= 0) return "--:--"
+
 const h = Math.floor(minutes/60)
 const m = minutes % 60
 
@@ -72,42 +74,53 @@ const breakDuration = 15
 const lunchDuration = 30
 
 if(now >= breakAM && now < breakAM + breakDuration){
-
 return {
 type:"Break",
 end: breakAM + breakDuration,
 duration: breakDuration
 }
-
 }
 
 if(now >= lunch && now < lunch + lunchDuration){
-
 return {
 type:"Lunch",
 end: lunch + lunchDuration,
 duration: lunchDuration
 }
-
 }
 
 if(now >= breakPM && now < breakPM + breakDuration){
-
 return {
 type:"Break",
 end: breakPM + breakDuration,
 duration: breakDuration
 }
-
 }
 
 return null
 
 }
 
-const currentBreak = selectedAgent ? getCurrentBreak(selectedAgent) : null
+/* ---------- next event ---------- */
 
-/* ---------- break timer ---------- */
+function getNextEvent(agent){
+
+const events=[
+
+{label:"Break AM",time:timeToMinutes(agent.breakAM)},
+{label:"Lunch",time:timeToMinutes(agent.lunch)},
+{label:"Break PM",time:timeToMinutes(agent.breakPM)},
+{label:"Shift End",time:timeToMinutes(agent.shiftEnd)}
+
+]
+
+return events.find(e=>e.time>now)
+
+}
+
+/* ---------- break logic ---------- */
+
+const currentBreak = selectedAgent ? getCurrentBreak(selectedAgent) : null
 
 let breakRemaining = null
 let breakProgress = 0
@@ -130,6 +143,14 @@ breakColor = "#22c55e"
 }
 
 }
+
+/* ---------- next event timer ---------- */
+
+let nextEvent = selectedAgent ? getNextEvent(selectedAgent) : null
+
+let nextEventRemaining = nextEvent
+? getMinutesLeft(nextEvent.time)
+: null
 
 /* ---------- UI ---------- */
 
@@ -174,6 +195,26 @@ Open Agent Dashboard
 <p className="time">
 Current ET Time: {formatTime(now)}
 </p>
+
+{/* ---------- NEXT EVENT TIMER ---------- */}
+
+{selectedAgent && !currentBreak && nextEvent && (
+
+<div style={{
+marginTop:"20px",
+display:"flex",
+justifyContent:"center"
+}}>
+
+<CircularTimer
+title={nextEvent.label}
+time={formatCountdown(nextEventRemaining)}
+progress={0}
+/>
+
+</div>
+
+)}
 
 {/* ---------- BREAK TIMER ---------- */}
 
