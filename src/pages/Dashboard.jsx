@@ -8,7 +8,7 @@ import { timeToMinutes, getESTMinutes } from "../utils/timeUtils"
 
 import "../styles/dashboard.css"
 
-export default function Dashboard(){
+export default function Dashboard({intialAgent = null}){
 
 const [now,setNow] = useState(getESTMinutes())
 const [selectedAgent,setSelectedAgent] = useState(null)
