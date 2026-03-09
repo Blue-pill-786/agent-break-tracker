@@ -1,13 +1,9 @@
 import { CircularProgressbar } from "react-circular-progressbar"
 import "react-circular-progressbar/dist/styles.css"
 
-export default function CircularTimer({ title, time, progress }) {
+export default function CircularTimer({title,time,progress,color}){
 
-const safeProgress = Math.min(Math.max(progress,0),100)
-
-const color = safeProgress >= 100 ? "#9ca3af" : "#4f46e5"
-
-return (
+return(
 
 <div style={{
 width:"90px",
@@ -16,10 +12,10 @@ textAlign:"center"
 }}>
 
 <CircularProgressbar
-value={safeProgress}
+value={progress}
 text={time}
 styles={{
-path:{ stroke: color },
+path:{ stroke: color || "#4f46e5" },
 trail:{ stroke:"#e2e8f0" },
 text:{ fill:"#0f172a", fontSize:"11px" }
 }}

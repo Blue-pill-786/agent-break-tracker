@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import Select from "react-select"
+import CircularTimer from "../components/CircularTimer"
 
 import { agents } from "../data/agents"
 import { timeToMinutes, getESTMinutes } from "../utils/timeUtils"
@@ -22,10 +23,10 @@ return ()=>clearInterval(timer)
 
 },[])
 
-/* ---------- dropdown options ---------- */
+/* ---------- dropdown ---------- */
 
-const options = agents.map((a,index)=>({
-value:index,
+const options = agents.map(a=>({
+value:a.id,
 label:a.name
 }))
 
@@ -40,10 +41,28 @@ return `${h}:${m}`
 
 }
 
-function isAgentWorking(agent,time){
+function formatCountdown(minutes){
 
-const start = timeToMinutes(agent.shiftStart)
-const end = timeToMinutes(agent.shiftEnd)
+const h = Math.floor(minutes/60)
+const m = minutes % 60
+
+return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}`
+
+}
+
+function getMinutesLeft(target){
+
+let diff = target - now
+
+if(diff < 0) diff += 1440
+
+return diff
+
+}
+
+/* ---------- break detection ---------- */
+
+function getCurrentBreak(agent){
 
 const breakAM = timeToMinutes(agent.breakAM)
 const lunch = timeToMinutes(agent.lunch)
@@ -52,48 +71,63 @@ const breakPM = timeToMinutes(agent.breakPM)
 const breakDuration = 15
 const lunchDuration = 30
 
-if(time < start || time >= end) return false
+if(now >= breakAM && now < breakAM + breakDuration){
 
-if(time >= breakAM && time < breakAM + breakDuration) return false
-if(time >= lunch && time < lunch + lunchDuration) return false
-if(time >= breakPM && time < breakPM + breakDuration) return false
-
-return true
+return {
+type:"Break",
+end: breakAM + breakDuration,
+duration: breakDuration
+}
 
 }
 
-function countWorkingAgents(offset){
+if(now >= lunch && now < lunch + lunchDuration){
 
-const checkTime = now + offset
-
-let count = 0
-
-agents.forEach(agent=>{
-
-if(isAgentWorking(agent,checkTime)){
-count++
+return {
+type:"Lunch",
+end: lunch + lunchDuration,
+duration: lunchDuration
 }
-
-})
-
-return count
 
 }
 
-/* ---------- coverage ---------- */
+if(now >= breakPM && now < breakPM + breakDuration){
 
-const coverageNow = countWorkingAgents(0)
-const coverage15 = countWorkingAgents(15)
-const coverage30 = countWorkingAgents(30)
-const coverage60 = countWorkingAgents(60)
+return {
+type:"Break",
+end: breakPM + breakDuration,
+duration: breakDuration
+}
 
-/* ---------- coverage color logic ---------- */
+}
 
-function getCoverageColor(value){
+return null
 
-if(value >= 6) return "#22c55e"   // green
-if(value >= 3) return "#f59e0b"   // yellow
-return "#ef4444"                  // red
+}
+
+const currentBreak = selectedAgent ? getCurrentBreak(selectedAgent) : null
+
+/* ---------- break timer ---------- */
+
+let breakRemaining = null
+let breakProgress = 0
+let breakColor = "#22c55e"
+
+if(currentBreak){
+
+breakRemaining = getMinutesLeft(currentBreak.end)
+
+breakProgress = (breakRemaining / currentBreak.duration) * 100
+
+if(breakRemaining <= 3){
+breakColor = "#ef4444"
+}
+else if(breakRemaining <= 7){
+breakColor = "#f59e0b"
+}
+else{
+breakColor = "#22c55e"
+}
 
 }
 
@@ -109,15 +143,21 @@ return(
 Team Dashboard
 </Link>
 
-{/* ---------- agent selector ---------- */}
-
 <Select
 options={options}
 placeholder="Select Agent"
-onChange={(option)=>setSelectedAgent(agents[option.value])}
-/>
+onChange={(option)=>{
 
-{/* ---------- open agent dashboard ---------- */}
+if(!option){
+setSelectedAgent(null)
+return
+}
+
+const agent = agents.find(a=>a.id===option.value)
+setSelectedAgent(agent)
+
+}}
+/>
 
 {selectedAgent && (
 
@@ -135,51 +175,26 @@ Open Agent Dashboard
 Current ET Time: {formatTime(now)}
 </p>
 
-<h3 style={{marginTop:"20px"}}>Coverage Forecast</h3>
+{/* ---------- BREAK TIMER ---------- */}
 
-<div className="cards">
+{currentBreak && (
 
-<div className="card">
-<p className="card-title">Now</p>
-<p 
-className="card-value"
-style={{color:getCoverageColor(coverageNow)}}
->
-{coverageNow} agents
-</p>
-</div>
+<div style={{
+marginTop:"20px",
+display:"flex",
+justifyContent:"center"
+}}>
 
-<div className="card">
-<p className="card-title">15 Minutes</p>
-<p 
-className="card-value"
-style={{color:getCoverageColor(coverage15)}}
->
-{coverage15} agents
-</p>
-</div>
-
-<div className="card">
-<p className="card-title">30 Minutes</p>
-<p 
-className="card-value"
-style={{color:getCoverageColor(coverage30)}}
->
-{coverage30} agents
-</p>
-</div>
-
-<div className="card">
-<p className="card-title">60 Minutes</p>
-<p 
-className="card-value"
-style={{color:getCoverageColor(coverage60)}}
->
-{coverage60} agents
-</p>
-</div>
+<CircularTimer
+title={currentBreak.type}
+time={`${breakRemaining} min`}
+progress={breakProgress}
+color={breakColor}
+/>
 
 </div>
+
+)}
 
 </div>
 
