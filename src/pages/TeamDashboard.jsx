@@ -25,8 +25,8 @@ return ()=>clearInterval(timer)
 
 /* ---------- dropdown ---------- */
 
-const options = agents.map((a,index)=>({
-value:index,
+const options = agents.map(a=>({
+value:a.id,
 label:a.name
 }))
 
@@ -43,8 +43,11 @@ return `${h}:${m}`
 
 function getMinutesLeft(target){
 
-const diff = target - now
-return diff <= 0 ? 0 : diff
+let diff = target - now
+
+if(diff < 0) diff += 1440
+
+return diff
 
 }
 
@@ -259,11 +262,15 @@ Agent Dashboard
 options={options}
 placeholder="Select Agent"
 onChange={(option)=>{
+
 if(!option){
 setSelectedAgent(null)
 return
 }
-setSelectedAgent(agents[option.value])
+
+const agent = agents.find(a=>a.id===option.value)
+setSelectedAgent(agent)
+
 }}
 />
 
@@ -284,6 +291,50 @@ Open Agent Dashboard
 <ShiftTimeline />
 
 <div className="team-grid">
+
+{/* COVERAGE FORECAST */}
+
+<div className="team-section">
+
+<h3>Coverage Forecast</h3>
+
+<div style={{
+display:"grid",
+gridTemplateColumns:"repeat(4,1fr)",
+gap:"12px"
+}}>
+
+<div className="team-card">
+<div>Now</div>
+<div style={{color:coverageColor(coverageNow)}}>
+{coverageNow} agents
+</div>
+</div>
+
+<div className="team-card">
+<div>15 Minutes</div>
+<div style={{color:coverageColor(coverage15)}}>
+{coverage15} agents
+</div>
+</div>
+
+<div className="team-card">
+<div>30 Minutes</div>
+<div style={{color:coverageColor(coverage30)}}>
+{coverage30} agents
+</div>
+</div>
+
+<div className="team-card">
+<div>60 Minutes</div>
+<div style={{color:coverageColor(coverage60)}}>
+{coverage60} agents
+</div>
+</div>
+
+</div>
+
+</div>
 
 {/* ACTIVE BREAKS */}
 
@@ -312,7 +363,96 @@ Open Agent Dashboard
 
 </div>
 
-{/* remaining sections unchanged */}
+{/* UPCOMING BREAKS */}
+
+<div className="team-section">
+
+<h3>Breaks in 15 Minutes</h3>
+
+{break15.length === 0 ?(
+<p className="empty">None</p>
+):(break15.map((a,i)=>(
+
+<div key={i} className="team-card">
+<div>{a.name}</div>
+<div>{a.type}</div>
+</div>
+
+)))}
+
+</div>
+
+<div className="team-section">
+
+<h3>Breaks in 30 Minutes</h3>
+
+{break30.length === 0 ?(
+<p className="empty">None</p>
+):(break30.map((a,i)=>(
+
+<div key={i} className="team-card">
+<div>{a.name}</div>
+<div>{a.type}</div>
+</div>
+
+)))}
+
+</div>
+
+<div className="team-section">
+
+<h3>Breaks in 60 Minutes</h3>
+
+{break60.length === 0 ?(
+<p className="empty">None</p>
+):(break60.map((a,i)=>(
+
+<div key={i} className="team-card">
+<div>{a.name}</div>
+<div>{a.type}</div>
+</div>
+
+)))}
+
+</div>
+
+{/* SHIFT ENDING */}
+
+<div className="team-section">
+
+<h3>Shift Ending Soon</h3>
+
+{shiftEndingSoon.length === 0 ?(
+<p className="empty">None</p>
+):(shiftEndingSoon.map((a,i)=>(
+
+<div key={i} className="team-card">
+<div>{a.name}</div>
+<div>{a.time}</div>
+</div>
+
+)))}
+
+</div>
+
+{/* LOGIN SOON */}
+
+<div className="team-section">
+
+<h3>Agents Logging In Soon</h3>
+
+{loginSoon.length === 0 ?(
+<p className="empty">None</p>
+):(loginSoon.map((a,i)=>(
+
+<div key={i} className="team-card">
+<div>{a.name}</div>
+<div>{a.time}</div>
+</div>
+
+)))}
+
+</div>
 
 </div>
 
